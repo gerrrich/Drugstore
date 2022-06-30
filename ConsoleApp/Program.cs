@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data.SqlClient;
 using System.Reflection;
+using System.IO;
 
 namespace ConsoleApp
 {
@@ -65,10 +66,50 @@ namespace ConsoleApp
             return isExit;
         }
 
+        static bool DeleteCascade<T>(DataBase dataBase, string name) where T : Table
+        {
+            List<T> ts = Table.Select<T>();
+
+            Table.Show(ts);
+
+            if (Choise(name, ts.Count, out int number))
+            {
+                return false;
+            }
+
+            ts[number].Delete();
+            dataBase.Fetch();
+
+            return true;
+        }
+
         static bool ExecCommand(string command, DataBase dataBase)
         {
             switch (command)
             {
+                case "show":
+                    {
+                        if (Choise("что отобразить? Товар - 0, Аптека - 1, Склад - 2, Партия - 3", 3, out int number))
+                        {
+                            return true;
+                        }
+
+                        ExecCommand("show " + number, dataBase);
+
+                        return true;
+                    }
+                case "show 0": // Товар
+                    Table.Show(Table.Select<Product>());
+                    return true;
+                case "show 1": // Аптека
+                    Table.Show(Table.Select<Store>());
+                    return true;
+                case "show 2": // Склад
+                    Table.Show(Table.Select<Storage>());
+                    return true;
+                case "show 3": // Партия
+                    Table.Show(Table.Select<Batch>());
+                    return true;
                 case "del":
                     {
                         if (Choise("что удалить? Товар - 0, Аптека - 1, Склад - 2, Партия - 3", 3, out int number))
@@ -81,109 +122,21 @@ namespace ConsoleApp
                         return true;
                     }
                 case "del 0": // Товар
-                    {
-                        List<Product> products = Product.Select();
-                        List<Store> stores = Store.Select();
-                        List<Storage> storages = Storage.Select(ref stores);
-                        List<Batch> batchs = Batch.Select(ref products, ref storages, ref stores);
+                    DeleteCascade<Product>(dataBase, "товар");
+                    return true;
 
-                        Table.Show(products);
-
-                        if (Choise("товар", products.Count, out int number))
-                        {
-                            return true;
-                        }
-
-                        List<Batch> toDel = batchs.FindAll((x) => x.Product.Id == products[number].Id);
-
-                        foreach (Batch batch in toDel)
-                        {
-                            batch.Delete();
-                        }
-
-                        products[number].Delete();
-                        dataBase.Fetch();
-
-                        return true;
-                    }
                 case "del 1": // Аптека
-                    {
-                        List<Product> products = Product.Select();
-                        List<Store> stores = Store.Select();
-                        List<Storage> storages = Storage.Select(ref stores);
-                        List<Batch> batchs = Batch.Select(ref products, ref storages, ref stores);
+                    DeleteCascade<Store>(dataBase, "аптеку");
+                    return true;
 
-                        Table.Show(stores);
-
-                        if (Choise("аптеку", stores.Count, out int number))
-                        {
-                            return true;
-                        }
-
-                        List<Storage> toDelS = storages.FindAll((x) => x.Store.Id == stores[number].Id);
-
-                        foreach (Storage storage in toDelS)
-                        {
-                            List<Batch> toDelB = batchs.FindAll((x) => x.Storage.Id == storage.Id);
-
-                            foreach (Batch batch in toDelB)
-                            {
-                                batch.Delete();
-                            }
-
-                            storage.Delete();
-                        }
-
-                        stores[number].Delete();
-                        dataBase.Fetch();
-
-                        return true;
-                    }
                 case "del 2": // Склад
-                    {
-                        List<Product> products = Product.Select();
-                        List<Store> stores = Store.Select();
-                        List<Storage> storages = Storage.Select(ref stores);
-                        List<Batch> batchs = Batch.Select(ref products, ref storages, ref stores);
+                    DeleteCascade<Storage>(dataBase, "аптеку");
+                    return true;
 
-                        Table.Show(storages);
-
-                        if (Choise("склад", storages.Count, out int number))
-                        {
-                            return true;
-                        }
-
-                        List<Batch> toDelB = batchs.FindAll((x) => x.Storage.Id == storages[number].Id);
-
-                        foreach (Batch batch in toDelB)
-                        {
-                            batch.Delete();
-                        }
-
-                        storages[number].Delete();
-                        dataBase.Fetch();
-
-                        return true;
-                    }
                 case "del 3": // Партия
-                    {
-                        List<Product> products = Product.Select();
-                        List<Store> stores = Store.Select();
-                        List<Storage> storages = Storage.Select(ref stores);
-                        List<Batch> batchs = Batch.Select(ref products, ref storages, ref stores);
+                    DeleteCascade<Batch>(dataBase, "партию");
+                    return true;
 
-                        Table.Show(batchs);
-
-                        if (Choise("партию", batchs.Count, out int number))
-                        {
-                            return true;
-                        }
-
-                        batchs[number].Delete();
-                        dataBase.Fetch();
-
-                        return true;
-                    }
                 case "new":
                     {
                         if (Choise("что создать? Товар - 0, Аптека - 1, Склад - 2, Партия - 3", 3, out int number))
@@ -235,7 +188,7 @@ namespace ConsoleApp
                         Console.WriteLine("Введите название склада: ");
                         string name = Console.ReadLine();
 
-                        List<Store> stores = Store.Select();
+                        List<Store> stores = Table.Select<Store>();
 
                         Table.Show(stores);
 
@@ -258,12 +211,10 @@ namespace ConsoleApp
                         Console.WriteLine("Создание партии...");
 
                         Console.WriteLine("Введите количество товара в партии: ");
-                        string countStr = Console.ReadLine();
-                        short count = short.Parse(countStr);
+                        string count = Console.ReadLine();
 
-                        List<Product> products = Product.Select();
-                        List<Store> stores = Store.Select();
-                        List<Storage> storages = Storage.Select(ref stores);
+                        List<Product> products = Table.Select<Product>();
+                        List<Storage> storages = Table.Select<Storage>();
 
                         Table.Show(products);
 
@@ -290,7 +241,7 @@ namespace ConsoleApp
                     }
                 case "pts":
                     {
-                        List<Store> stores = Store.Select();
+                        List<Store> stores = Table.Select<Store>();
                         Table.Show(stores);
 
                         if (Choise("аптеку", stores.Count, out int number))
@@ -308,7 +259,7 @@ namespace ConsoleApp
                         return true;
                     }
                 case "help":
-                    Console.WriteLine("\nСписок команд:\n* Выход: \"exit\"\n* Cписок товаров: \"pts\"\n* Создать: \"new\"\n* Удалить: \"del\"\n");
+                    Console.WriteLine("\nСписок команд:\n* Выход: \"exit\"\n* Cписок товаров: \"pts\"\n* Создать: \"new\"\n* Удалить: \"del\"\n* Показать таблицу: \"show\"\n");
                     return true;
                 case "exit":
                     return false;

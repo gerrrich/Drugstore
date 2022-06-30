@@ -45,51 +45,5 @@ namespace ConsoleApp
 
             return store;
         }
-
-        private static List<Store> Unpack(List<List<object>> rows, List<string> columns)
-        {
-            List<Store> list = new List<Store>();
-
-            for (int i = 0; i < rows.Count; i++)
-            {
-                string name = null;
-                string address = null;
-                string phone = null;
-                string id = null;
-
-                for (int j = 0; j < columns.Count; j++)
-                {
-                    if (columns[j].Equals("Name"))
-                    {
-                        name = rows[i][j] as string;
-                    }
-                    else if (columns[j].Equals("Address"))
-                    {
-                        address = rows[i][j] as string;
-                    }
-                    else if (columns[j].Equals("Phone"))
-                    {
-                        phone = rows[i][j] as string;
-                    }
-                    else
-                    {
-                        id = rows[i][j].ToString();
-                    }
-                }
-
-                Store store = Create(name, address, phone, id);
-
-                list.Add(store);
-            }
-
-            return list;
-        }
-
-        public static List<Store> Select()
-        {
-            (List<List<object>> rows, List<string> columns) = dataBase.SelectQuery($"SELECT * FROM {dataBase.ConnectionStringSettings.Name}.Store");
-
-            return Unpack(rows, columns);
-        }
     }
 }

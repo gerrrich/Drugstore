@@ -114,6 +114,65 @@ namespace ConsoleApp
             dataBase.tasks.Enqueue(sqlExpression);
         }
 
+        public static T SelectOneById<T>(string id)
+        {
+            return Select<T>($"WHERE {dataBase.ConnectionStringSettings.Name}.{typeof(T).Name}.{typeof(T).Name}Id = '{id}'", 1)[0];
+        }
+
+        public static List<T> Select<T>(string where = null, int top = -1)
+        {
+            List<T> list = new List<T>();
+            List<List<object>> rows;
+            List<string> columns;
+            string query = "SELECT ";
+
+            if (top != -1)
+            {
+                query += $"TOP({top}) ";
+            }
+
+            query += $"* FROM {dataBase.ConnectionStringSettings.Name}.{typeof(T).Name} ";
+
+            if (!string.IsNullOrWhiteSpace(where))
+            {
+                query += where;
+            }
+
+            (rows, columns) = dataBase.SelectQuery(query);
+
+            for (int i = 0; i < rows.Count; i++)
+            {
+                object[] parameters = new object[typeof(T).GetProperties().Length];
+
+                for (int j = 0; j < columns.Count; j++)
+                {
+                    if (typeof(T).GetMethod("Create").GetParameters()[j].ParameterType.BaseType.Equals(typeof(Table)))
+                    {
+                        int ind = columns.FindIndex((x) => x.ToLower().Equals(typeof(T).GetMethod("Create").GetParameters()[j].Name));
+
+                        parameters[j] = typeof(Table).GetMethod("SelectOneById").MakeGenericMethod(typeof(T).GetMethod("Create").GetParameters()[j].ParameterType).Invoke(null, new object[] { rows[i][ind].ToString() });
+                    }
+                    else
+                    {
+                        int ind = columns.FindIndex((x) => x.ToLower().Equals(typeof(T).GetMethod("Create").GetParameters()[j].Name));
+
+                        if (ind == -1)
+                        {
+                            ind = columns.FindIndex((x) => x.Equals(typeof(T).Name + "Id"));
+                        }
+
+                        parameters[j] = rows[i][ind].ToString();
+                    }
+                }
+
+                T t = (T)typeof(T).GetMethod("Create").Invoke(null, parameters);
+
+                list.Add(t);
+            }
+
+            return list;
+        }
+
         public static void Show<T>(List<T> list) where T : Table
         {
             if (list == null || list.Count == 0)

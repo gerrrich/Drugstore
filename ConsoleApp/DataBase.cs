@@ -79,14 +79,12 @@ namespace ConsoleApp
             SqlTransaction transaction = connection.BeginTransaction();
             SqlCommand command = connection.CreateCommand();
             command.Transaction = transaction;
-            SqlDataReader reader = null;
 
             try
             {
                 command.CommandText = selectQueryString;
 
-                reader = command.ExecuteReader();
-
+                SqlDataReader reader = command.ExecuteReader();
                 List<List<object>> rows = new List<List<object>>();
                 List<string> columns = new List<string>();
 
