@@ -35,6 +35,33 @@ namespace ConsoleApp
             }
         }
 
+        protected static T CreateWithOld<T>(T old, params (string name, object value)[] parameters) where T : Table
+        {
+            int propertyCount = typeof(T).GetProperties().Length;
+            object[] par = new object[propertyCount];
+            List<(string name, object value)> parametersList = parameters.ToList();
+
+            for (int j = 0; j < propertyCount; j++)
+            {
+                string parName = typeof(T).GetMethod("Create").GetParameters()[j].Name;
+                parName = parName[0].ToString().ToUpper() + parName.Remove(0, 1);
+
+                (string name, object value) find = parametersList.Find((x) => x.name == parName);
+
+                if (find == default)
+                {
+                    par[j] = typeof(T).GetProperty(parName).GetValue(old);
+                    par[j] = par[j] == null ? null : par[j].ToString();
+                }
+                else
+                {
+                    par[j] = find.value.ToString();
+                }
+            }
+
+            return (T)typeof(T).GetMethod("Create").Invoke(null, par);
+        }
+
         public void Save()
         {
             if (dataBase == null)
@@ -114,7 +141,7 @@ namespace ConsoleApp
             dataBase.tasks.Enqueue(sqlExpression);
         }
 
-        public static T SelectOneById<T>(string id)
+        protected static T SelectOneById<T>(string id)
         {
             return Select<T>($"WHERE {dataBase.ConnectionStringSettings.Name}.{typeof(T).Name}.{typeof(T).Name}Id = '{id}'", 1)[0];
         }

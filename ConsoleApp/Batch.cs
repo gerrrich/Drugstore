@@ -12,6 +12,18 @@ namespace ConsoleApp
         public Storage Storage { get; private set; }
         public short Count { get; private set; }
 
+        private Batch() { }
+
+        public static Batch SelectOneById(string id)
+        {
+            return SelectOneById<Batch>(id);
+        }
+
+        public static Batch CreateWithOld(Batch old, params (string name, object value)[] parameters)
+        {
+            return CreateWithOld<Batch>(old, parameters);
+        }
+
         public static Batch Create(Product product, Storage storage, string count, string id = null)
         {
             if (product == null)

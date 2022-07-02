@@ -12,6 +12,16 @@ namespace ConsoleApp
 
         private Product() { }
 
+        public static Product SelectOneById(string id)
+        {
+            return SelectOneById<Product>(id);
+        }
+
+        public static Product CreateWithOld(Product old, params (string name, object value)[] parameters)
+        {
+            return CreateWithOld<Product>(old, parameters);
+        }
+
         public static Product Create(string name, string id = null)
         {
             CheckString(ref name, false);

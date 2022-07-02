@@ -14,6 +14,16 @@ namespace ConsoleApp
 
         private Store() { }
 
+        public static Store SelectOneById(string id)
+        {
+            return SelectOneById<Store>(id);
+        }
+
+        public static Store CreateWithOld(Store old, params (string name, object value)[] parameters)
+        {
+            return CreateWithOld<Store>(old, parameters);
+        }
+
         public static Store Create(string name, string address, string phone, string id = null)
         {
             CheckString(ref name, false);
