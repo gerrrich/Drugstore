@@ -44,17 +44,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Batch.cs" />
-    <Compile Include="DataBase.cs" />
-    <Compile Include="Product.cs" />
+    <Compile Include="Tables\Batch.cs" />
+    <Compile Include="Tables\Product.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Storage.cs" />
-    <Compile Include="Store.cs" />
-    <Compile Include="Table.cs" />
+    <Compile Include="Tables\Storage.cs" />
+    <Compile Include="Tables\Store.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj">
+      <Project>{17b3038c-2672-4fb9-bf07-9c92af5ddfc2}</Project>
+      <Name>Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data.SqlClient;
-using System.Reflection;
-using System.IO;
+using Core;
+using Tables;
 
 namespace ConsoleApp
 {
@@ -230,7 +225,7 @@ namespace ConsoleApp
                             return true;
                         }
 
-                        Batch batch = Batch.Create(products[number1], storages[number2], count);
+                        Batch batch = Batch.Create(products[number1], storages[number2], short.Parse(count));
 
                         Console.WriteLine();
 
