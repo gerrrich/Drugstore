@@ -8,3 +8,4 @@ C:\Users\German.Ibragimov\source\repos\TestCompany\ConsoleApp\obj\Debug\ConsoleA
 C:\Users\German.Ibragimov\source\repos\TestCompany\ConsoleApp\bin\Debug\Core.dll
 C:\Users\German.Ibragimov\source\repos\TestCompany\ConsoleApp\bin\Debug\Core.pdb
 C:\Users\German.Ibragimov\source\repos\TestCompany\ConsoleApp\obj\Debug\ConsoleApp.csproj.CopyComplete
+C:\Users\German.Ibragimov\source\repos\TestCompany\ConsoleApp\obj\Debug\ConsoleApp.csproj.SuggestedBindingRedirects.cache
