@@ -53,7 +53,7 @@ namespace Tables
             return SelectOneById<Store>(id);
         }
 
-        public static Store CreateWithOld(Store old, params (string name, object value)[] parameters)
+        public static Store CreateWithOld(Store old, params IField[] parameters)
         {
             return CreateWithOld<Store>(old, parameters);
         }

@@ -1,6 +1,9 @@
-﻿namespace Core
+﻿using System.Collections;
+using System.Collections.Generic;
+
+namespace Core
 {
-    public class Field<T>
+    public class Field<T> : IField
     {
         public T Value { get; private set; }
 
@@ -22,5 +25,22 @@
             // Field validation
             Value = value;
         }
+
+        public object GetValue()
+        {
+            return Value;
+        }
+
+        public string GetName()
+        {
+            return Name;
+        }
+    }
+
+    public interface IField
+    {
+        string GetName();
+
+        object GetValue();
     }
 }

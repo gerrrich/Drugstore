@@ -19,18 +19,18 @@ namespace Core
             // _isNew = true;
         }
 
-        protected static T CreateWithOld<T>(T old, params (string name, object value)[] parameters) where T : Table
+        protected static T CreateWithOld<T>(T old, params IField[] parameters) where T : Table
         {
             int propertyCount = typeof(T).GetProperties().Length;
             object[] par = new object[propertyCount];
-            List<(string name, object value)> parametersList = parameters.ToList();
+            List<IField> parametersList = parameters.ToList();
 
             for (int j = 0; j < propertyCount; j++)
             {
                 string parName = typeof(T).GetMethod("Create").GetParameters()[j].Name;
                 parName = parName[0].ToString().ToUpper() + parName.Remove(0, 1);
 
-                (string name, object value) find = parametersList.Find((x) => x.name == parName);
+                IField find = parametersList.Find((x) => x.GetName() == parName);
 
                 if (find == default)
                 {
@@ -38,7 +38,7 @@ namespace Core
                 }
                 else
                 {
-                    par[j] = find.value.ToString();
+                    par[j] = find.GetValue().ToString();
                 }
             }
 
@@ -132,8 +132,7 @@ namespace Core
         public static List<T> Select<T>(string where = null, int top = -1)
         {
             List<T> list = new List<T>();
-            List<List<object>> rows;
-            List<string> columns;
+            List<List<IField>> rows;
             string query = "SELECT ";
 
             if (top != -1)
@@ -148,30 +147,33 @@ namespace Core
                 query += where;
             }
 
-            (rows, columns) = dataBase.SelectQuery(query);
+            rows = dataBase.SelectQuery(query);
 
             for (int i = 0; i < rows.Count; i++)
             {
                 object[] parameters = new object[typeof(T).GetProperties().Length];
 
-                for (int j = 0; j < columns.Count; j++)
+                for (int j = 0; j < rows[0].Count; j++)
                 {
                     if (typeof(T).GetMethod("Create").GetParameters()[j].ParameterType.BaseType.Equals(typeof(Table)))
                     {
-                        int ind = columns.FindIndex((x) => x.ToLower().Equals(typeof(T).GetMethod("Create").GetParameters()[j].Name));
+                        int ind = rows[0].FindIndex((x) => x.GetName().ToLower().Equals(typeof(T).GetMethod("Create").GetParameters()[j].Name));
 
-                        parameters[j] = typeof(Table).GetMethod("SelectOneById").MakeGenericMethod(typeof(T).GetMethod("Create").GetParameters()[j].ParameterType).Invoke(null, new object[] { rows[i][ind].ToString() });
+                        parameters[j] = typeof(Table).GetMethod("SelectOneById").MakeGenericMethod(typeof(T).GetMethod("Create").GetParameters()[j].ParameterType).Invoke(null, new object[] { rows[i][ind].GetValue().ToString() });
                     }
                     else
                     {
-                        int ind = columns.FindIndex((x) => x.ToLower().Equals(typeof(T).GetMethod("Create").GetParameters()[j].Name));
+                        int ind = rows[0].FindIndex((x) => x.GetName().ToLower().Equals(typeof(T).GetMethod("Create").GetParameters()[j].Name));
 
                         if (ind == -1)
                         {
-                            ind = columns.FindIndex((x) => x.Equals(typeof(T).Name + "Id"));
+                            ind = rows[0].FindIndex((x) => x.GetName().Equals(typeof(T).Name + "Id"));
+                            parameters[j] = rows[i][ind].GetValue().ToString();
                         }
-
-                        parameters[j] = rows[i][ind].ToString();
+                        else
+                        {
+                            parameters[j] = rows[i][ind].GetValue();
+                        }
                     }
                 }
 

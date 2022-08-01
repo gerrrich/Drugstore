@@ -53,7 +53,7 @@ namespace Tables
             return SelectOneById<Batch>(id);
         }
 
-        public static Batch CreateWithOld(Batch old, params (string name, object value)[] parameters)
+        public static Batch CreateWithOld(Batch old, params IField[] parameters)
         {
             return CreateWithOld<Batch>(old, parameters);
         }

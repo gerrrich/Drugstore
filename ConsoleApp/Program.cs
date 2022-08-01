@@ -11,6 +11,8 @@ namespace ConsoleApp
         {
             using (DataBase dataBase = new DataBase())
             {
+                dataBase.ShowSelectQuery("select * from Drugstore.Product");
+
                 while (true)
                 {
                     Console.WriteLine("Введите команду (для получения списка команд введите \"help\"):");

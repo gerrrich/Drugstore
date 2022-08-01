@@ -1,3 +1,5 @@
 .vs/
-*.obj/
-*.bin/
+ConsoleApp/bin/
+ConsoleApp/obj/
+Core/bin/
+Core/obj/

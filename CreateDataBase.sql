@@ -1,4 +1,6 @@
-﻿USE [Drugstore]
+﻿CREATE DATABASE [Drugstore]
+
+USE [Drugstore]
 GO
 
 CREATE SCHEMA [Drugstore]

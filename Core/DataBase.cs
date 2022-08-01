@@ -10,18 +10,27 @@ namespace Core
         public ConnectionStringSettings ConnectionStringSettings { get; private set; }
         public readonly SqlConnection connection;
         public Queue<string> tasks;
-        // public Dictionary<Guid, Table> tableCache;
 
         public DataBase()
         {
             tasks = new Queue<string>();
 
-            if (ConfigurationManager.ConnectionStrings["Drugstore"] == null)
+            if (ConfigurationManager.ConnectionStrings.Count == 0)
             {
-                throw new Exception($"В App.Config отсутствует строка подключения \"Drugstore\"");
+                throw new Exception($"В App.Config отсутствует строка подключения");
             }
 
-            ConnectionStringSettings = ConfigurationManager.ConnectionStrings["Drugstore"];
+            foreach (ConnectionStringSettings css in ConfigurationManager.ConnectionStrings)
+            {
+                if (css.Name == "LocalSqlServer")
+                {
+                    continue;
+                }
+
+                ConnectionStringSettings = css;
+
+                break;
+            }
 
             connection = new SqlConnection(ConnectionStringSettings.ToString());
 
@@ -29,11 +38,10 @@ namespace Core
             {
                 connection.Open();
                 Table.dataBase = this;
-                // tableCache = new Dictionary<Guid, Table>();
             }
             catch (Exception ex)
             {
-                throw new Exception("Не удалось создать пробное подключение к базе", ex);
+                throw new Exception("Не удалось создать подключение к базе данных", ex);
             }
             finally
             {
@@ -72,7 +80,7 @@ namespace Core
             }
         }
 
-        public (List<List<object>> rows, List<string> columns) SelectQuery(string selectQueryString)
+        public List<List<IField>> SelectQuery(string selectQueryString)
         {
             this.connection.Open();
             SqlTransaction transaction = connection.BeginTransaction();
@@ -84,21 +92,15 @@ namespace Core
                 command.CommandText = selectQueryString;
 
                 SqlDataReader reader = command.ExecuteReader();
-                List<List<object>> rows = new List<List<object>>();
-                List<string> columns = new List<string>();
-
-                for (int i = 0; i < reader.FieldCount; i++)
-                {
-                    columns.Add(reader.GetName(i));
-                }
+                List<List<IField>> rows = new List<List<IField>>();
 
                 while (reader.Read())
                 {
-                    List<object> row = new List<object>();
+                    List<IField> row = new List<IField>();
 
                     for (int i = 0; i < reader.FieldCount; i++)
                     {
-                        row.Add(reader.GetValue(i));
+                        row.Add((IField)typeof(Field<>).MakeGenericType(reader.GetFieldType(i)).GetConstructor(new Type[] { reader.GetFieldType(i), typeof(string) }).Invoke(new object[] { reader.GetValue(i), reader.GetName(i) }));
                     }
 
                     rows.Add(row);
@@ -107,7 +109,7 @@ namespace Core
                 reader.Close();
                 transaction.Commit();
 
-                return (rows, columns);
+                return rows;
             }
             catch (Exception ex)
             {
@@ -122,22 +124,22 @@ namespace Core
 
         public void ShowSelectQuery(string selectQueryString)
         {
-            (List<List<object>> rows, List<string> columns) = SelectQuery(selectQueryString);
+            List<List<IField>> rows = SelectQuery(selectQueryString);
 
             Console.WriteLine();
 
-            foreach (string column in columns)
+            foreach (IField column in rows[0])
             {
-                Console.Write(column + "    ");
+                Console.Write(column.GetName() + "    ");
             }
 
             Console.WriteLine();
 
-            foreach (List<object> row in rows)
+            foreach (List<IField> row in rows)
             {
-                foreach (object val in row)
+                foreach (IField val in row)
                 {
-                    Console.Write(val.ToString() + "    ");
+                    Console.Write(val.GetValue().ToString() + "    ");
                 }
 
                 Console.WriteLine();

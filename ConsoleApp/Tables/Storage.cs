@@ -40,7 +40,7 @@ namespace Tables
             return SelectOneById<Storage>(id);
         }
 
-        public static Storage CreateWithOld(Storage old, params (string name, object value)[] parameters)
+        public static Storage CreateWithOld(Storage old, params IField[] parameters)
         {
             return CreateWithOld<Storage>(old, parameters);
         }

@@ -27,7 +27,7 @@ namespace Tables
             return SelectOneById<Product>(id);
         }
 
-        public static Product CreateWithOld(Product old, params (string name, object value)[] parameters)
+        public static Product CreateWithOld(Product old, params IField[] parameters)
         {
             return CreateWithOld<Product>(old, parameters);
         }
