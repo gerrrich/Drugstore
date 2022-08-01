@@ -1,6 +1,0 @@
-C:\Users\German.Ibragimov\source\repos\TestCompany\Core\bin\Debug\Core.dll
-C:\Users\German.Ibragimov\source\repos\TestCompany\Core\bin\Debug\Core.pdb
-C:\Users\German.Ibragimov\source\repos\TestCompany\Core\obj\Debug\Core.csproj.AssemblyReference.cache
-C:\Users\German.Ibragimov\source\repos\TestCompany\Core\obj\Debug\Core.csproj.CoreCompileInputs.cache
-C:\Users\German.Ibragimov\source\repos\TestCompany\Core\obj\Debug\Core.dll
-C:\Users\German.Ibragimov\source\repos\TestCompany\Core\obj\Debug\Core.pdb
